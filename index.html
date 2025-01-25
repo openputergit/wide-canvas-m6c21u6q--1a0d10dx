@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - Fun & Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        .section-border {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.15);
+            transition: all 0.3s ease;
+        }
+        .section-border:hover {
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.25);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(26, 26, 26, 0.8);
+        }
+        .hero-text {
+            background: linear-gradient(135deg, #e879f9, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(147, 51, 234, 0.2);
+        }
+        .game-cell {
+            aspect-ratio: 1;
+            font-size: 2rem;
+            border: 2px solid rgba(147, 51, 234, 0.3);
+            transition: all 0.3s ease;
+        }
+        .game-cell:hover {
+            background: rgba(147, 51, 234, 0.1);
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .win-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="min-h-screen p-4 md:p-8">
+    <div class="max-w-7xl mx-auto space-y-8">
+        <div class="section-border glass-effect p-6 md:p-8">
+            <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold text-center hero-text">
+                Well, Here We Are - Random stuff you didn't know you needed
+            </h1>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="section-border glass-effect p-8 hover:bg-opacity-90 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 text-center">
+                <i class="bi bi-joystick text-5xl mb-4 text-purple-400"></i>
+                <h3 class="text-2xl font-semibold mb-3">Arcade Games</h3>
+                <p class="text-gray-300">Classic fun at your fingertips</p>
+            </div>
+            <div class="section-border glass-effect p-8 hover:bg-opacity-90 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 text-center">
+                <i class="bi bi-puzzle text-5xl mb-4 text-blue-400"></i>
+                <h3 class="text-2xl font-semibold mb-3">Puzzle Games</h3>
+                <p class="text-gray-300">Train your brain</p>
+            </div>
+            <div class="section-border glass-effect p-8 hover:bg-opacity-90 transition-all duration-300 cursor-pointer transform hover:-translate-y-1 text-center">
+                <i class="bi bi-lightning text-5xl mb-4 text-yellow-400"></i>
+                <h3 class="text-2xl font-semibold mb-3">Action Games</h3>
+                <p class="text-gray-300">Fast-paced excitement</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="section-border glass-effect p-8">
+                <div class="flex flex-col justify-start space-y-8">
+                    <h2 class="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        Hi, I am Dhraws - Dhruv Draws
+                    </h2>
+                    <div class="text-xl text-purple-300 space-y-3">
+                        <div id="currentTime" class="font-mono"></div>
+                        <div id="currentDate" class="font-mono"></div>
+                    </div>
+                    <div class="space-y-4">
+                        <p class="text-gray-300 text-lg">This is a fun website with smol games and some other stuff ummm honestly just a placeholder to park the domain</p>
+                        <p class="text-gray-300 text-lg">I'll add in some other stuff soon ;)</p>
+                    </div>
+                    <a href="https://www.behance.net/gallery/182517357/Graphic-Design-Portfolio" 
+                       target="_blank"
+                       class="inline-block px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300 text-center w-fit">
+                        View My Portfolio on Behance
+                    </a>
+                </div>
+            </div>
+            <div class="section-border glass-effect p-8">
+                <div class="flex flex-col items-center justify-center h-full space-y-6">
+                    <h3 class="text-2xl font-bold mb-4 text-purple-400">Tic Tac Toe vs AI</h3>
+                    <div id="game-board" class="game-board"></div>
+                    <div id="status" class="text-xl font-semibold text-center"></div>
+                    <button id="reset-game" class="px-6 py-2 bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">
+                        Reset Game
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DateTime Update
+        function updateDateTime() {
+            const timeElement = document.getElementById('currentTime');
+            const dateElement = document.getElementById('currentDate');
+            const now = new Date();
+            timeElement.textContent = `🕒 ${now.toLocaleTimeString('en-US')}`;
+            dateElement.textContent = `📅 ${now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+        }
+        updateDateTime();
+        setInterval(updateDateTime, 1000);
+
+        // Tic Tac Toe Game
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let currentPlayer = 'X';
+        let gameActive = true;
+
+        const winningConditions = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        const gameBoard = document.getElementById('game-board');
+        const status = document.getElementById('status');
+
+        function createBoard() {
+            gameBoard.innerHTML = '';
+            board.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.classList.add('game-cell', 'flex', 'items-center', 'justify-center', 'cursor-pointer', 'text-2xl', 'font-bold');
+                cellElement.dataset.index = index;
+                cellElement.textContent = cell;
+                cellElement.addEventListener('click', () => handleCellClick(index));
+                gameBoard.appendChild(cellElement);
+            });
+        }
+
+        function handleCellClick(index) {
+            if (board[index] !== '' || !gameActive) return;
+            board[index] = currentPlayer;
+            createBoard();
+            if (checkWin()) {
+                status.textContent = `Player ${currentPlayer} wins!`;
+                gameActive = false;
+                return;
+            }
+            if (board.every(cell => cell !== '')) {
+                status.textContent = "It's a draw!";
+                gameActive = false;
+                return;
+            }
+            currentPlayer = 'O';
+            setTimeout(makeAIMove, 500);
+        }
+
+        function makeAIMove() {
+            if (!gameActive) return;
+            let bestMove = findBestMove();
+            board[bestMove] = currentPlayer;
+            createBoard();
+            if (checkWin()) {
+                status.textContent = `AI wins!`;
+                gameActive = false;
+                return;
+            }
+            if (board.every(cell => cell !== '')) {
+                status.textContent = "It's a draw!";
+                gameActive = false;
+                return;
+            }
+            currentPlayer = 'X';
+        }
+
+        function findBestMove() {
+            let bestScore = -Infinity;
+            let bestMove;
+            for (let i = 0; i < 9; i++) {
+                if (board[i] === '') {
+                    board[i] = 'O';
+                    let score = minimax(board, 0, false);
+                    board[i] = '';
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestMove = i;
+                    }
+                }
+            }
+            return bestMove;
+        }
+
+        function minimax(board, depth, isMaximizing) {
+            if (checkWin()) return isMaximizing ? -1 : 1;
+            if (board.every(cell => cell !== '')) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';
+                        let score = minimax(board, depth + 1, false);
+                        board[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'X';
+                        let score = minimax(board, depth + 1, true);
+                        board[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function checkWin() {
+            return winningConditions.some(condition => {
+                return condition.every(index => {
+                    return board[index] === currentPlayer;
+                });
+            });
+        }
+
+        document.getElementById('reset-game').addEventListener('click', () => {
+            board = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            status.textContent = '';
+            createBoard();
+        });
+
+        createBoard();
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
